@@ -1,0 +1,10 @@
+# Book settings
+# Learn more at https://jupyterbook.org/customize/config.html
+
+title: My sample book
+author: The Jupyter Book Community
+
+execute:
+  execute_notebooks: cache
+  cache: .jupyter_cache/
+
