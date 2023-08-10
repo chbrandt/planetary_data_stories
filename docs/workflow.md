@@ -25,5 +25,7 @@ in their own environments and *cache the results* for later use by Jupyter-Book.
 
 ## Example
 
-If you're new here, you may want to read "[Example Workflow](example_workflow.md)"
+If you're new to jupyter-book and jupyter-cache, you may want to read 
+"[Example Workflow](example_workflow.md)" first
 as it provides the basic idea of the workflow we follow here.
+

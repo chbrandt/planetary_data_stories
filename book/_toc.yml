@@ -6,4 +6,5 @@ root: intro
 chapters:
   - glob: um/*
   - glob: dois/*
+  - file: isis/01_search_data_products.ipynb
 
