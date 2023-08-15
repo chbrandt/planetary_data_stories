@@ -5,15 +5,15 @@ a generic example.
 
 In the [`example/`](example/) directory, the files we need for this example:
 
-- [`_config.yml`](example/_config.yml): 
+- [`_config.yml`](example/_config.yml):
     jupyter-book config file;
-- [`_toc.yml`](example/_toc.yml): 
+- [`_toc.yml`](example/_toc.yml):
     jupyter-book toc file.
-- [`intro.md`](example/intro.md): 
+- [`intro.md`](example/intro.md):
     a markdown file with some welcoming message;
-- [`notebooks/req.ipynb`](example/notebooks/req.ipynb): 
+- [`notebooks/req.ipynb`](example/notebooks/req.ipynb):
     a notebook dependent on environment `requests`;
-- [`notebooks/sci.ipynb`](example/notebooks/sci.ipynb): 
+- [`notebooks/sci.ipynb`](example/notebooks/sci.ipynb):
     a notebook dependent on environment `scipy`;
 
 
@@ -95,20 +95,29 @@ $ tree
     ```
 
 - Run-cache one notebook:
+    - Activate the environment, make sure `ipykernel` is installed:
     ```bash
     $ conda activate reqenv
     $ python -m ipykernel install --user
+    ```
 
+    - Add notebook to the project (to be executed):
+    ```bash
     $ jcache notebook add notebooks/req.ipynb
+
     Adding: /home/jovyan/book/tmp/example/notebooks/req.ipynb
     Success!
 
     $ jcache notebook list
-    ID  URI                          Reader    Added             Status
+    ID    URI                          Reader    Added             Status
     ----  ---------------------------  --------  ----------------  --------
-    1  example/notebooks/req.ipynb  nbformat  2023-08-05 10:38  -
+    1     example/notebooks/req.ipynb  nbformat  2023-08-05 10:38  -
+    ```
 
+    - Execute the notebooks in the project's list:`
+    ```bash
     $ jcache project execute
+
     Executing 1 notebook(s) in serial
     Executing: /home/jovyan/book/tmp/example/notebooks/req.ipynb
     Execution Successful: /home/jovyan/example/notebooks/req.ipynb
@@ -117,32 +126,49 @@ $ tree
     - /home/jovyan/example/notebooks/req.ipynb
     excepted: []
     errored: []
+    ```
 
+    - Check the state of the cache (notice the green checkmark status):
+    ```bash
     $ jcache notebook list
-    ID  URI                          Reader    Added             Status
+
+    ID    URI                          Reader    Added             Status
     ----  ---------------------------  --------  ----------------  --------
-    1  example/notebooks/req.ipynb  nbformat  2023-08-05 10:38  ✅ [1]
+    1     example/notebooks/req.ipynb  nbformat  2023-08-05 10:38  ✅ [1]
 
     $ # We're done here
     $ conda deactivate
     ```
 
 - Run-cache the other notebook:
+    - Activate the environment, guarantee `ipykernel`:
     ```bash
     $ conda activate scienv
     $ python -m ipykernel install --user
+    ```
 
-    $ jcache notebook add notebooks/sci.ipynb 
+    - Add notebook to project:
+    ```bash
+    $ jcache notebook add notebooks/sci.ipynb
+
     Adding: /home/jovyan/example/notebooks/sci.ipynb
     Success!
+    ```
 
+    - Check the list of notebooks in the project:
+    ```bash
     $ jcache notebook list
+
     ID  URI                          Reader    Added             Status
     ----  ---------------------------  --------  ----------------  --------
     1  example/notebooks/req.ipynb  nbformat  2023-08-05 10:38  ✅ [1]
     2  example/notebooks/sci.ipynb  nbformat  2023-08-05 10:48  -
+    ```
 
+    - Execute the notebooks not yet in the cache:
+    ```bash
     $ jcache project execute
+
     Executing 1 notebook(s) in serial
     Executing: /home/jovyan/example/notebooks/sci.ipynb
     Execution Successful: /home/jovyan/example/notebooks/sci.ipynb
@@ -151,20 +177,27 @@ $ tree
     - /home/jovyan/example/notebooks/sci.ipynb
     excepted: []
     errored: []
+    ```
 
+    - Check the list of notebooks in the project now:
+    ```bash
     $ jcache notebook list
+
     ID  URI                          Reader    Added             Status
     ----  ---------------------------  --------  ----------------  --------
     1  example/notebooks/req.ipynb  nbformat  2023-08-05 10:38  ✅ [1]
     2  example/notebooks/sci.ipynb  nbformat  2023-08-05 10:48  ✅ [2]
+    ```
 
+    - Deactivate environment because you should always clear after yourself:
+    ```bash
     $ # We're done here
     $ conda deactivate
     ```
 
 ## Build book
 
-Once the notebooks are run and their results cached, we are ready to 
+Once the notebooks are run and their results cached, we are ready to
 call `jupyter-book` to collect those results and assembly the book.
 
 ```bash
@@ -187,8 +220,8 @@ building [html]: targets for 5 source files that are out of date
 updating environment: [new config] 5 added, 0 changed, 0 removed
 /home/jovyan/example/.jupyter_cache/executed/ac6d55eddb80d69b7a443ed30aa05ddc/base.ipynb: Using cached notebook: ID=1 [mystnb]
 /home/jovyan/example/.jupyter_cache/executed/bd2bc6fa0583cc2784133123a328e603/base.ipynb: Using cached notebook: ID=2 [mystnb]
-/home/jovyan/example/notebooks/req.ipynb: Using cached notebook: ID=1 [mystnb]                                        
-/home/jovyan/example/notebooks/sci.ipynb: Using cached notebook: ID=2 [mystnb]                                        
+/home/jovyan/example/notebooks/req.ipynb: Using cached notebook: ID=1 [mystnb]
+/home/jovyan/example/notebooks/sci.ipynb: Using cached notebook: ID=2 [mystnb]
 
 looking for now-outdated files... none found
 pickling environment... done
@@ -196,7 +229,7 @@ checking consistency... /home/jovyan/example/.jupyter_cache/executed/ac6d55eddb8
 /home/jovyan/example/.jupyter_cache/executed/bd2bc6fa0583cc2784133123a328e603/base.ipynb: WARNING: document isn't included in any toctree
 done
 preparing documents... done
-writing output... [100%] notebooks/sci                                                                                                                                     
+writing output... [100%] notebooks/sci
 generating indices... genindex done
 writing additional pages... search done
 copying static files... done
@@ -216,14 +249,14 @@ Your book's HTML pages are here:
 You can look at your book by opening this file in a browser:
     _build/html/index.html
 Or paste this line directly into your browser bar:
-    file:///home/jovyan/example/_build/html/index.html            
+    file:///home/jovyan/example/_build/html/index.html
 
 ===============================================================================
 
 ```
 The `build succeeded`.
-We see there are some *warnings* about files not being in the _toc_ which 
-we can safelly ignore, they are harmless (it's a bug, I guess, that I should report). 
+We see there are some *warnings* about files not being in the _toc_ which
+we can safelly ignore, they are harmless (it's a bug, I guess, that I should report).
 
 We should be able to see the results of our book in the location provided
 to us (`file:///home/jovyan/example/_build/html/index.html`):

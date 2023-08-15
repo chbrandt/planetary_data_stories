@@ -77,21 +77,19 @@ The following situations for running a notebook should be supported:
 Suppose we have the following notebooks composing our book:
 
 - "download_pds_images.ipynb": depends only on Python Requests library
-    > Next to this notebook, we need a `requirements` or `environment`
-    > file stating the dependency on `requests` (eg, version `2.31`):
+    > Next to this notebook, we need a configuration file
+    > stating the dependency on `requests` (eg, version `2.31`):
     > ```
     > requests==2.31
     > ```
 
 - "transform_images.ipynb": depends on USGS/ISIS tools and `npt` library
-    > This notebook runs on our `docker-isis` container, in an environment
-    > with the `npt` library installed. In this case, we have to specify
-    > the container, and the python lib to install:
+    > This notebook runs on GMAP's `jupyter-isis` container, in an environment
+    > with the `npt` library installed. In this case, we want to specify
+    > the *container* and the python library to install:
     > ```
-    > container = gmap/jupyter-isis:7.1.0
-    > environment = npt
-    > [npt]
-    > file = environment.yml
+    > container = gmap/jupyter-isis
+    > requirements = npt
     > ```
 
 - "mosaic_images.ipynb": depends on Python GIS (GDAL, Rasterio)
@@ -99,3 +97,32 @@ Suppose we have the following notebooks composing our book:
     > ```
     > container = gmap/jupyter-gispy
     > ```
+
+We define a (INI) config file as follows:
+```ini
+[download_pds_images]
+requirements = requests==2.31
+
+[transform_images]
+container = gmap/jupyter-isis
+requirements = npt
+
+[mosaic_images]
+container = gmap/jupyter-gispy
+
+[DEFAULT]
+environment = base
+```
+
+
+## Guidelines
+
+[rules-for-content]: https://jupyterbook.org/en/stable/file-types/index.html#rules-for-all-content-types
+
+- Every Notebook or Markdown file *must* start with a title (`#`) line:
+    ```markdown
+    # This is a title
+
+    (...)
+    ```
+    * See Jupyter-Book's [Rules for all content types](#rules-for-content)
