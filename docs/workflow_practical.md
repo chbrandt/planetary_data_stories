@@ -1,27 +1,31 @@
 # Practical Workflow Example
 
-Now let's consider a more complex scenario, one that covers the setup of
-environments (using conda and pip) inside and outside containers.
+Now let's consider a more complex scenario, one that covers the use of
+environments inside and outside containers, likely to be a scenario in
+our material.
 
-Directory [`example_practical/`](example_practical/) is our workdirectory
-for this example. The notebooks in there contain simple code cells, using
-and tools specific to their corresponding environments, enough for checking
-on the workflow.
+Directory [`example_practical/`](example_practical/) is our work-directory
+for this example. The notebooks in there contain some code cells enough to
+test and show the different environments and workflow at hand.
 
-Consider the following notebooks we want to include in our *book*:
+The following notebooks we want to include in our *book*:
 
-1. (host) "this" environment
-    - `this_env.ipynb`
-1. (host) "new" environment
-    - `new_env.ipynb`
-1. jupyter container "X/Y:Z", *base* environment
-    - `container_base_env`
-1. jupyter container "X/Y:Z", "new" environment
-    - `container_new_env`
-1. jupyter container "X/Y:Z", *base* environment, plus package(s) ("abc", ...)
-    - `packages_container_base_env`
+- `this_env.ipynb`: uses the same environment as jupyter-book.
+- `new_env.ipynb`: demands a different (conda) environment, defined in
+`new_env.yml`.
+- `container_base_env.ipynb`: runs in a jupyter (docker-stack) container,
+using the *base* environment.
+- `container_new_env.ipynb`: also runs in a jupyter container, but demands
+a specific environment defined in `container_new_env.yml`.
+- `packages_container_base_env.ipynb`: also runs in a container, uses the
+*base* environment but install packages listed in `packages_container_base_env.txt`.
 
-## Command-steps
+In our workflow (below), we first run the notebooks (with Jupyter-Cache)
+and only *then* we call Jupyter-Book to assemble the notebooks into a
+book according to `_toc.yml` and `_config.yml`. Jupyter-Book will also
+process Markdown files, here, `readme.md`.
+
+## Jupyter Notebooks run/cache
 
 1. Run `this_env.ipynb`
 
@@ -181,3 +185,89 @@ Consider the following notebooks we want to include in our *book*:
     $ docker stop 'jupmin'
     jupmin
     ```
+
+## Jupyter Book build
+
+Now that we have all notebooks (results) cached, it's time to ask
+Jupyter-Book to bring them together into the book structure we have defined
+in `_toc.yml`:
+
+At this point we have in our `example_practical` folder:
+
+```bash
+$ ls -1a
+.
+..
+.ipynb_checkpoints/
+.jupyter_cache/
+_config.yml
+_toc.yml
+container_base_env.ipynb
+container_new_env.ipynb
+container_new_env.yml
+new_env.ipynb
+new_env.yml
+packages_container_base_env.ipynb
+packages_container_base_env.txt
+readme.md
+this_env.ipynb
+```
+
+Build the book:
+
+```bash
+$ jb build .
+Running Jupyter-Book v0.15.1
+Source Folder: /planetary_data_stories/docs/example_practical
+Config Path: /planetary_data_stories/docs/example_practical/_config.yml
+Output Path: /planetary_data_stories/docs/example_practical/_build/html
+Running Sphinx v4.5.0
+[etoc] Changing master_doc to 'readme'
+loading pickled environment... done
+myst v0.18.1: MdParserConfig(commonmark_only=False, gfm_only=False, enable_extensions=['colon_fence', 'dollarmath', 'linkify', 'substitution', 'tasklist'], disable_syntax=[], all_links_external=False, url_schemes=['mailto', 'http', 'https'], ref_domains=None, highlight_code_blocks=True, number_code_blocks=[], title_to_header=False, heading_anchors=None, heading_slug_func=None, footnote_transition=True, words_per_minute=200, sub_delimiters=('{', '}'), linkify_fuzzy_links=True, dmath_allow_labels=True, dmath_allow_space=True, dmath_allow_digits=True, dmath_double_inline=False, update_mathjax=True, mathjax_classes='tex2jax_process|mathjax_process|math|output_area')
+myst-nb v0.17.2: NbParserConfig(custom_formats={}, metadata_key='mystnb', cell_metadata_key='mystnb', kernel_rgx_aliases={}, execution_mode='cache', execution_cache_path='.jupyter_cache/', execution_excludepatterns=[], execution_timeout=30, execution_in_temp=False, execution_allow_errors=False, execution_raise_on_error=False, execution_show_tb=False, merge_streams=False, render_plugin='default', remove_code_source=False, remove_code_outputs=False, code_prompt_show='Show code cell {type}', code_prompt_hide='Hide code cell {type}', number_source_lines=False, output_stderr='show', render_text_lexer='myst-ansi', render_error_lexer='ipythontb', render_image_options={}, render_figure_options={}, render_markdown_format='commonmark', output_folder='build', append_css=True, metadata_to_fm=False)
+Using jupyter-cache at: .jupyter_cache/
+building [mo]: targets for 0 po files that are out of date
+building [html]: targets for 0 source files that are out of date
+updating environment: 0 added, 1 changed, 0 removed
+reading sources... [100%] readme
+looking for now-outdated files... none found
+pickling environment... done
+checking consistency... /planetary_data_stories/docs/example_practical/.jupyter_cache/executed/3cceab471a11b7f29cde2085da47a613/base.ipynb: WARNING: document isn't included in any toctree
+/planetary_data_stories/docs/example_practical/.jupyter_cache/executed/bcf649d844976a197881c487af7c7779/base.ipynb: WARNING: document isn't included in any toctree
+/planetary_data_stories/docs/example_practical/.jupyter_cache/executed/cc29605fa0e3df9b81e99a087f77253f/base.ipynb: WARNING: document isn't included in any toctree
+/planetary_data_stories/docs/example_practical/.jupyter_cache/executed/ce6f7ddcb08d62c0319d05226c3302c0/base.ipynb: WARNING: document isn't included in any toctree
+/planetary_data_stories/docs/example_practical/.jupyter_cache/executed/e7dbb98078e6aee188970092849ea991/base.ipynb: WARNING: document isn't included in any toctree
+done
+preparing documents... done
+writing output... [100%] readme
+generating indices... genindex done
+writing additional pages... search done
+copying static files... done
+copying extra files... done
+dumping search index in English (code: en)... done
+dumping object inventory... done
+build succeeded, 5 warnings.
+
+The HTML pages are in _build/html.
+
+===============================================================================
+
+Finished generating HTML for book.
+Your book's HTML pages are here:
+    _build/html/
+You can look at your book by opening this file in a browser:
+    _build/html/index.html
+Or paste this line directly into your browser bar:
+    file:///planetary_data_stories/docs/example_practical/_build/html/index.html
+
+===============================================================================
+```
+
+We open the URL provided and we have our example book:
+
+![Book landing page](assets/book_landing_page.png)
+
+> For convenience, I'm including the HTML pages in:
+>
+> - [assets/book_build/html/](assets/book_build/html/)
