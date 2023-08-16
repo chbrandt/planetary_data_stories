@@ -1,0 +1,6 @@
+name: new_env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - seaborn=0.12.2
