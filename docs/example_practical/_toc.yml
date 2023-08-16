@@ -1,0 +1,11 @@
+# Table of contents
+# Learn more at https://jupyterbook.org/customize/toc.html
+
+format: jb-book
+root: readme
+chapters:
+  - file: this_env.ipynb
+  - file: new_env.ipynb
+  - file: container_base_env.ipynb
+  - file: container_new_env.ipynb
+  - file: packages_container_base_env.ipynb
