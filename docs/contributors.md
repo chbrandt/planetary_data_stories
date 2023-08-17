@@ -1,4 +1,4 @@
-# Workflow
+# Contributors
 
 [Jupyter-Book]: https://jupyter-book.org
 [Jupyter-Cache]: https://jupyter-cache.readthedocs.io
