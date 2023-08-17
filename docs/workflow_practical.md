@@ -25,6 +25,34 @@ and only *then* we call Jupyter-Book to assemble the notebooks into a
 book according to `_toc.yml` and `_config.yml`. Jupyter-Book will also
 process Markdown files, here, `readme.md`.
 
+> [!IMPORTANT]
+> Have a look in [Contributors' "Caveats" section](contributors.md) for
+> important notes of this workflow and the tools we're using.
+>
+> For instance, you'll notice the use of [jq](https://jqlang.github.io/jq/)
+> tool in this example *to remove `kernelspec` information from the notebooks*:
+>
+> ```json
+>  "kernelspec": {
+>   "display_name": "Python 3 (ipykernel)",
+>   "language": "python",
+>   "name": "python3"
+>  },
+> ```
+>
+> If you don't want or can't install *jq*, you can handle that with other
+> tools or even manually; no worries.
+> If you're reproducing this workflow and you happend to have errors
+> regarding the "unknown kernel XYZ", it's *probably* because "XYZ" is
+> hardcoded in your notebook (in the `kernelspec`), and you can safely
+> remove such info with:
+>
+> ```bash
+> $ # First, we have to remove metadata associated to kernel (jupyter-lab does this)
+> $ jq 'del(.metadata.kernelspec)' the_notebook.ipynb > tmp.ipynb
+> $ mv tmp.ipynb the_notebook.ipynb
+> ```
+
 ## Jupyter Notebooks run/cache
 
 1. Run `this_env.ipynb`
@@ -53,6 +81,7 @@ process Markdown files, here, `readme.md`.
 
     ```bash
     $ conda env create -f new_env.yml -n 'new_env'
+    (...)
     Preparing transaction: done
     Verifying transaction: done
     Executing transaction: done
@@ -131,11 +160,6 @@ process Markdown files, here, `readme.md`.
     $ docker exec -t 'jupmin' bash -ic \
         "conda activate 'tmp' && pip install jupyter-cache"
     Successfully installed jupyter-cache-0.6.1 ...
-
-    <!-- $ docker exec -it jupmin bash -ic \
-        "conda activate tmp \
-        && pip install ipykernel \
-        && python -m ipykernel install --user --name tmp" -->
 
     $ docker exec -t -w "$PWD" 'jupmin' bash -ic \
         "conda activate 'tmp' \
