@@ -4,20 +4,36 @@ Now let's consider a more complex scenario, one that covers the use of
 environments inside and outside containers, likely to be a scenario in
 our material.
 
+## Software requirements
+
+To run this example, you'll need:
+
+- [Jupyter-Book](https://jupyter-book.org) (which includes Jupyter-Cache)
+- [Conda](https://docs.conda.io/projects/conda/) (or Anaconda)
+- [Docker](https://www.docker.com)
+
+We recommend installing Jupyter-Book in a separate environment, like so:
+
+```bash
+conda create -n jupyter-book -y python pip jupyter-book
+```
+
+## Book content
+
 Directory [`example_practical/`](example_practical/) is our work-directory
 for this example. The notebooks in there contain some code cells enough to
 test and show the different environments and workflow at hand.
 
-The following notebooks we want to include in our *book*:
+The following notebooks are going to compose our book:
 
 - `this_env.ipynb`: uses the same environment as jupyter-book.
 - `new_env.ipynb`: demands a different (conda) environment, defined in
 `new_env.yml`.
-- `container_base_env.ipynb`: runs in a jupyter (docker-stack) container,
+- `container_base_env.ipynb`: runs in a jupyter container,
 using the *base* environment.
-- `container_new_env.ipynb`: also runs in a jupyter container, but demands
-a specific environment defined in `container_new_env.yml`.
-- `packages_container_base_env.ipynb`: also runs in a container, uses the
+- `container_new_env.ipynb`: runs in a jupyter container, in
+an environment defined in `container_new_env.yml`.
+- `packages_container_base_env.ipynb`: runs in a container, uses the
 *base* environment but install packages listed in `packages_container_base_env.txt`.
 
 In our workflow (below), we first run the notebooks (with Jupyter-Cache)
@@ -54,6 +70,12 @@ process Markdown files, here, `readme.md`.
 > ```
 
 ## Jupyter Notebooks run/cache
+
+Use the `jupyter-book` environment we created before for the workflow:
+
+```bash
+conda activate jupyter-book
+```
 
 1. Run `this_env.ipynb`
 
@@ -96,7 +118,7 @@ process Markdown files, here, `readme.md`.
 
     $ conda activate --stack 'new_env'
 
-    $ pip install -y ipykernel
+    $ pip install ipykernel
     Installing collected packages: ...
     Successfully installed ...
 
@@ -135,7 +157,10 @@ process Markdown files, here, `readme.md`.
     $ docker exec -t -w "$PWD" 'jupmin' bash -ic "pip install jupyter-cache"
     Successfully installed click-8.1.6 jupyter-cache-0.6.1 nbclient-0.7.4 tabulate-0.9.0
 
-    # FIRST CLEAN METADATA (kernelspec) from notebook
+    $ # FIRST CLEAN METADATA (kernelspec) from notebook
+    $ jq 'del(.metadata.kernelspec)' container_base_env.ipynb > tmp.ipynb
+    $ mv tmp.ipynb container_base_env.ipynb
+
     $ docker exec -t -w "$PWD" 'jupmin' bash -ic "conda activate 'base' \
         && jcache notebook add 'container_base_env.ipynb' \
         && jcache project execute"
@@ -158,8 +183,9 @@ process Markdown files, here, `readme.md`.
         "conda env create -n 'tmp' -f $PWD/container_new_env.yml"
 
     $ docker exec -t 'jupmin' bash -ic \
-        "conda activate 'tmp' && pip install jupyter-cache"
-    Successfully installed jupyter-cache-0.6.1 ...
+        "conda activate 'tmp' \
+        && pip install jupyter-cache ipykernel \
+        && python -m ipykernel install --user --name 'tmp'"
 
     $ docker exec -t -w "$PWD" 'jupmin' bash -ic \
         "conda activate 'tmp' \
@@ -222,8 +248,7 @@ At this point we have in our `example_practical` folder:
 $ ls -1a
 .
 ..
-.ipynb_checkpoints/
-.jupyter_cache/
+.jupyter_cache
 _config.yml
 _toc.yml
 container_base_env.ipynb
@@ -240,7 +265,7 @@ this_env.ipynb
 Build the book:
 
 ```bash
-$ jb build .
+$ jupyter-book build .
 Running Jupyter-Book v0.15.1
 Source Folder: /planetary_data_stories/docs/example_practical
 Config Path: /planetary_data_stories/docs/example_practical/_config.yml
