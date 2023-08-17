@@ -22,11 +22,72 @@ Because of that, we will break the building of the book in two major steps:
 In technical terms, we will first use [Jupyter-Cache][] to run each notebook
 in their own environments and *cache the results* for later use by Jupyter-Book.
 
-## Example
+## Examples
 
-If you're new to jupyter-book and jupyter-cache, you may want to read
-"[Example Workflow](example_workflow.md)" first
-as it provides the basic idea of the workflow we follow here.
+If you're new to jupyter-book and jupyter-cache, you may want to read first
+
+- [Workflow Basics](workflow_basics.md): basic idea of the workflow we'll do here.
+
+Then, a more complex workflow, using multiple environments and containers:
+
+- [Workflow Practical](workflow_practical.md): mimics actual workflow we're after.
+
+## Caveats
+
+[rules-for-content]: https://jupyterbook.org/en/stable/file-types/index.html#rules-for-all-content-types
+[jq]: https://jqlang.github.io/jq/
+
+The workflow we're deploying here -- with multiple environments and containers --
+is not a trivial one. Plus, error messages raised by jupyter-book/jupyter-cache
+are not yet very mature. So, special care to details is very important at this point.
+
+> [!NOTE]
+> Once we agree on the workflow, we will work on automating it.
+> For the time being, we need to test and cover different use-cases.
+
+Here goes a list of key points to pay attention:
+
+- *Every* Notebook(`.ipynb`) and Markdown(`.md`) file *MUST* start with title(`#`)
+  - See Jupyter-Book's [Rules for all content types][rules-for-content]
+
+    ```markdown
+    # This is a title
+
+    (...)
+    ```
+
+- Jupyter Notebooks keep in their metadata information about the latest
+kernel that run them. Such information will raise errors when using
+[Jupyter-Cache][] if not removed. Thankfully, notebooks are simple JSON files
+and we can easily remove such information either by using a tool like [jq][] or
+in a text editor. We have to remove the `metadata/kernelspec` entry.
+With `jq`, we'll do:
+
+    ```bash
+    jq 'del(.metadata.kernelspec)' the_notebook.ipynb > tmp.ipynb
+    mv tmp.ipynb the_notebook.ipynb
+    ```
+
+- When running notebooks inside containers (see [Examples](#examples)),
+we will mount volumes with same path (*inside* the container as in the host).
+In the examples, for instance, you saw the following:
+
+    ```bash
+    docker run ... -v $PWD:$PWD ...
+    ```
+
+    This is necessary if we're mixing running notebooks in the host system
+    (`$PWD`) as well as in containers. (*This happens because jupyter-cache
+    stores notebook absolute paths in the project database.*)
+
+- It is necessary to install Jupyter-Cache in each (virtual) environment
+you use.
+
+- - -
+
+> [!WARNING]
+> Lines below are under construction, they are the beginnings to structuring
+> the automation of the workflow so far.
 
 ## Source-files structure
 
@@ -113,16 +174,3 @@ container = gmap/jupyter-gispy
 [DEFAULT]
 environment = base
 ```
-
-
-## Guidelines
-
-[rules-for-content]: https://jupyterbook.org/en/stable/file-types/index.html#rules-for-all-content-types
-
-- Every Notebook or Markdown file *must* start with a title (`#`) line:
-    ```markdown
-    # This is a title
-
-    (...)
-    ```
-    * See Jupyter-Book's [Rules for all content types](#rules-for-content)
